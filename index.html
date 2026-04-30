@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="Rebild client onboarding form for creative, production, and Meta Ads briefs."
+    />
+    <title>Rebild - Client Onboarding</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,700,800,900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="app" class="app-shell">
+      <aside class="sidebar">
+        <div>
+          <button class="brand-link" id="homeButton" type="button" aria-label="Go to form">
+            <img id="brandLogo" alt="Rebild" class="brand-logo" />
+          </button>
+
+          <div class="brand-copy">
+            <span class="eyebrow">Client Brief · 2026</span>
+            <h1>
+              Let's build
+              <br />
+              something
+              <br />
+              worth seeing<span>.</span>
+            </h1>
+            <p>
+              A short, focused brief so we can come back with a sharp proposal,
+              tailored scope and the right team for your brand.
+            </p>
+          </div>
+        </div>
+
+        <nav class="step-nav" aria-label="Form steps">
+          <button class="step-nav-item" type="button" data-step-target="0">
+            <span>01</span><strong>Services</strong>
+          </button>
+          <button class="step-nav-item" type="button" data-step-target="1">
+            <span>02</span><strong>Company</strong>
+          </button>
+          <button class="step-nav-item" type="button" data-step-target="2">
+            <span>03</span><strong>Brand & Audience</strong>
+          </button>
+          <button class="step-nav-item" type="button" data-step-target="3">
+            <span>04</span><strong>Goals & Budget</strong>
+          </button>
+          <button class="step-nav-item" type="button" data-step-target="4">
+            <span>05</span><strong>Assets</strong>
+          </button>
+        </nav>
+
+        <button id="adminOpen" class="admin-link" type="button">Admin</button>
+      </aside>
+
+      <main class="main-panel">
+        <section id="formView">
+          <header class="form-header">
+            <div>
+              <span id="stepCounter" class="eyebrow">Step 01 / 05</span>
+              <h2 id="stepTitle">Services</h2>
+            </div>
+            <div id="progressBars" class="progress-bars" aria-hidden="true"></div>
+          </header>
+
+          <form id="briefForm" novalidate>
+            <div id="stepContent" class="step-content"></div>
+
+            <footer class="form-actions">
+              <button id="backButton" class="button button-ghost" type="button">
+                <span aria-hidden="true">&larr;</span> Back
+              </button>
+              <button id="nextButton" class="button button-primary" type="button">
+                Continue <span aria-hidden="true">&rarr;</span>
+              </button>
+              <button id="submitButton" class="button button-primary hidden" type="submit">
+                Send Brief <span aria-hidden="true">&rarr;</span>
+              </button>
+            </footer>
+          </form>
+        </section>
+
+        <section id="thankYouView" class="thank-you hidden">
+          <span class="eyebrow">Submission received</span>
+          <h2>Thank you<span>.</span></h2>
+          <p>
+            Your brief is in. The Rebild team will review every detail you
+            shared and come back to you within <strong>24-48 hours</strong>
+            with a custom proposal, scope and a few sharp questions of our own.
+          </p>
+          <div class="timeline-grid">
+            <article><span>01</span><h3>Brief reviewed</h3><p>Same day</p></article>
+            <article><span>02</span><h3>Strategy call</h3><p>Within 48 hours</p></article>
+            <article><span>03</span><h3>Proposal sent</h3><p>Within 5 days</p></article>
+          </div>
+          <p id="referenceId" class="reference"></p>
+          <button id="newBriefButton" class="button button-primary" type="button">
+            Start another brief
+          </button>
+        </section>
+
+        <section id="adminView" class="admin-view hidden">
+          <div class="admin-topbar">
+            <div>
+              <span class="eyebrow">Inbox</span>
+              <h2>Client submissions</h2>
+              <p id="adminCount"></p>
+            </div>
+            <button id="closeAdmin" class="button button-ghost" type="button">Back to form</button>
+          </div>
+          <div id="adminList" class="admin-list"></div>
+          <article id="adminDetail" class="admin-detail hidden"></article>
+        </section>
+      </main>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
