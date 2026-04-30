@@ -141,6 +141,7 @@ function field(name, label, options = {}) {
   `;
 }
 
+
 function pill(label, selected, action, value = label) {
   return `<button class="pill ${selected ? "selected" : ""}" type="button" data-action="${action}" data-value="${escapeHtml(value)}">${escapeHtml(label)}</button>`;
 }
@@ -195,12 +196,12 @@ function renderStep() {
       <div class="field-grid">
         ${field("company_name", "Company / Brand name", { required: true, placeholder: "Acme Studios" })}
         ${field("website", "Website", { placeholder: "https://" })}
-        ${field("industry", "Industry / category", { placeholder: "e.g. D2C skincare, real estate, F&B" })}
+        ${field("industry", "Industry / category", { required: true , placeholder: "e.g. D2C skincare, real estate, F&B" })}
         ${field("company_location", "Headquarters / city", { placeholder: "Mumbai, India" })}
         ${field("contact_name", "Your name", { required: true, placeholder: "Full name" })}
         ${field("contact_role", "Role / designation", { placeholder: "Founder, Marketing Lead, etc." })}
         ${field("email", "Email", { required: true, type: "email", placeholder: "you@brand.com" })}
-        ${field("phone", "Phone / WhatsApp", { placeholder: "+91 ..." })}
+        ${field("phone", "Phone / WhatsApp", { required: true, placeholder: "+91 ..." })}
       </div>
     `;
   }
@@ -222,8 +223,8 @@ function renderStep() {
           placeholder: "Describe your target audience - age, gender, lifestyle, interests, pain points.",
         })}
         <div class="field-grid">
-          ${field("target_locations", "Target locations", { placeholder: "Cities / regions / countries" })}
-          ${field("target_age_range", "Target age range", { placeholder: "e.g. 22 - 38" })}
+          ${field("target_locations", "Target locations", { required: true ,placeholder: "Cities / regions / countries" })}
+          ${field("target_age_range", "Target age range", { required: true ,placeholder: "e.g. 22 - 38" })}
         </div>
       </div>
     `;
@@ -234,7 +235,7 @@ function renderStep() {
     els.stepContent.innerHTML = `
       <div class="stack">
         <div class="field">
-          <label>Primary goals</label>
+          <label>Primary goals <b>*</b></label>
           <small>Select all that apply.</small>
           <div class="pill-group">
             ${GOAL_OPTIONS.map((goal) => pill(goal, state.data.primary_goals.includes(goal), "toggle-goal")).join("")}
@@ -249,7 +250,7 @@ function renderStep() {
         </div>
         <div class="field-grid">
           ${field("start_date", "When would you like to start?", { type: "date" })}
-          ${field("campaign_duration", "Engagement length", { placeholder: "One-off, 3 months, ongoing retainer..." })}
+          ${field("campaign_duration", "Engagement length", { required: true,placeholder: "One-off, 3 months, ongoing retainer..." })}
         </div>
         ${field("competitors", "Top 2-3 competitors", {
           hint: "Brands we should benchmark or beat.",
@@ -415,14 +416,103 @@ function formatSize(bytes) {
 }
 
 function canContinue() {
-  if (state.step === 0) return state.data.services.length > 0;
-  if (state.step === 1) {
-    return (
-      state.data.company_name.trim() &&
-      state.data.contact_name.trim() &&
-      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.data.email)
-    );
+  // STEP 0 → services
+  if (state.step === 0) {
+    if (!state.data.services.length) {
+      showToast("Pick at least one service.");
+      return false;
+    }
+    return true;
   }
+
+  // STEP 1 → company + contact
+  if (state.step === 1) {
+    if (!state.data.company_name.trim()) {
+      showToast("Company name is required.");
+      return false;
+    }
+
+    if (!state.data.industry.trim()) {
+      showToast("Industry is required.");
+      return false;
+    }
+
+    if (!state.data.contact_name.trim()) {
+      showToast("Your name is required.");
+      return false;
+    }
+
+    if (!state.data.phone.trim()) {
+      showToast("Phone number is required.");
+      return false;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.data.email)) {
+      showToast("Enter a valid email.");
+      return false;
+    }
+
+    return true;
+  }
+
+  // STEP 2 → audience
+  if (state.step === 2) {
+    if (!state.data.target_locations.trim()) {
+      showToast("Target location is required.");
+      return false;
+    }
+
+    if (!state.data.target_age_range.trim()) {
+      showToast("Target age range is required.");
+      return false;
+    }
+
+    return true;
+  }
+
+  // STEP 3 → goals & budget
+  if (state.step === 3) {
+    if (!state.data.primary_goals.length) {
+      showToast("Select at least one goal.");
+      return false;
+    }
+
+    if (!state.data.monthly_budget) {
+      showToast("Select a monthly budget.");
+      return false;
+    }
+
+    if (!state.data.campaign_duration.trim()) {
+      showToast("Engagement length is required.");
+      return false;
+    }
+
+    // Meta Ads checks (only if selected)
+    if (state.data.services.includes("Meta Ads")) {
+      if (!state.data.has_facebook_page) {
+        showToast("Meta Ads: Facebook page status required.");
+        return false;
+      }
+
+      if (!state.data.has_instagram) {
+        showToast("Meta Ads: Instagram status required.");
+        return false;
+      }
+
+      if (!state.data.has_meta_business) {
+        showToast("Meta Ads: Business Manager status required.");
+        return false;
+      }
+
+      if (!state.data.has_creative_assets) {
+        showToast("Meta Ads: Creative assets info required.");
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   return true;
 }
 
@@ -440,13 +530,35 @@ function goBack() {
   renderStep();
 }
 
-function saveSubmission() {
+function showSuccessFlow() {
+  const flash = document.getElementById("flashSubmitted");
+  const thankYou = document.getElementById("thankYouView");
+  const formView = document.getElementById("formView");
+
+  // hide form
+  formView.style.display = "none";
+  
+
+  // show flash animation
+  flash.classList.add("active");
+
+  // after 2s → switch to thank you
+  setTimeout(() => {
+    flash.classList.remove("active");
+    thankYou.classList.remove("hidden");
+  }, 2000);
+}
+
+
+
+async function saveSubmission() {
   if (!state.data.services.length) {
     state.step = 0;
     renderStep();
     showToast("Please select at least one service.");
     return;
   }
+
   if (!state.data.company_name.trim() || !state.data.contact_name.trim() || !state.data.email.trim()) {
     state.step = 1;
     renderStep();
@@ -454,16 +566,53 @@ function saveSubmission() {
     return;
   }
 
-  const submission = {
-    id: crypto.randomUUID ? crypto.randomUUID() : `brief-${Date.now()}`,
-    submitted_at: new Date().toISOString(),
-    ...state.data,
-    files: state.files.map((file, index) => ({ id: `${Date.now()}-${index}`, ...file })),
-  };
-  const submissions = getSubmissions();
-  submissions.unshift(submission);
-  localStorage.setItem("rebild_submissions", JSON.stringify(submissions));
-  showThankYou(submission.id);
+  // 👇 Prepare email content
+  const templateParams = {
+  company: state.data.company_name,
+  industry: state.data.industry,
+  website: state.data.website,
+  company_location: state.data.company_location,
+
+  name: state.data.contact_name,
+  email: state.data.email,
+  phone: state.data.phone,
+  contact_role: state.data.contact_role,
+
+  services: state.data.services.join(", "),
+  goals: state.data.primary_goals.join(", "),
+  budget: state.data.monthly_budget,
+
+  brand_description: state.data.brand_description,
+  usp: state.data.usp,
+  brand_voice: state.data.brand_voice,
+
+  target_audience: state.data.target_audience,
+  target_locations: state.data.target_locations,
+  target_age_range: state.data.target_age_range,
+
+  start_date: state.data.start_date,
+  campaign_duration: state.data.campaign_duration,
+  competitors: state.data.competitors,
+  success_metrics: state.data.success_metrics,
+
+  notes: state.data.additional_notes
+};
+
+  try {
+    // 🔴 Replace these IDs from EmailJS dashboard
+    await emailjs.send(
+      "service_z7dnxnm",
+      "template_kt0nozk",
+      templateParams
+    );
+
+    showSuccessFlow(); // 👈 animation first
+   
+
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to send. Try again.");
+  }
 }
 
 function showThankYou(id) {
@@ -587,10 +736,14 @@ $("#closeAdmin").addEventListener("click", resetForm);
 $$("[data-step-target]").forEach((button) => {
   button.addEventListener("click", () => {
     const target = Number(button.dataset.stepTarget);
-    if (target <= state.step) {
-      state.step = target;
-      renderStep();
+
+    // allow forward navigation but validate first
+    if (target > state.step) {
+      if (!canContinue()) return;
     }
+
+    state.step = target;
+    renderStep();
   });
 });
 
