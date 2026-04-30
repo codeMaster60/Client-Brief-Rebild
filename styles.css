@@ -1049,6 +1049,21 @@ button:disabled {
     padding: 40px 24px;
   }
 
+  .form-actions {
+  position: sticky;
+  bottom: 0;
+  background: var(--black);
+  z-index: 5;
+
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+
+  margin-top: 40px;
+  padding: 20px 0;
+  border-top: 1px solid var(--border);
+}
+
   .service-grid,
   .timeline-grid {
     grid-template-columns: 1fr;
