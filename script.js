@@ -80,6 +80,8 @@ const state = {
   files: [],
 };
 
+let lastAnimatedStep = -1;
+
 const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 
@@ -161,8 +163,21 @@ function renderShell() {
   els.submitButton.classList.toggle("hidden", state.step !== STEPS.length - 1);
 }
 
+function animateStep() {
+  if (state.step === lastAnimatedStep) return;
+  lastAnimatedStep = state.step;
+
+  const el = document.getElementById("stepContent");
+  if (!el) return;
+
+  el.style.animation = "none";
+  void el.offsetWidth;
+  el.style.animation = "";
+}
+
 function renderStep() {
   renderShell();
+  
 
   if (state.step === 0) {
     els.stepContent.innerHTML = `
@@ -242,7 +257,7 @@ function renderStep() {
           </div>
         </div>
         <div class="field">
-          <label>Monthly marketing budget</label>
+          <label>Monthly marketing budget <b>*</b></label>
           <small>Approximate monthly spend you're comfortable with.</small>
           <div class="pill-group">
             ${BUDGETS.map((budget) => pill(budget, state.data.monthly_budget === budget, "set-budget")).join("")}
@@ -294,6 +309,7 @@ function renderStep() {
   }
 
   bindDynamicEvents();
+  animateStep();
 }
 
 function renderMetaBox() {
@@ -368,6 +384,9 @@ function bindDynamicEvents() {
     });
   });
 }
+window.addEventListener("DOMContentLoaded", () => {
+  document.body.classList.add("loaded");
+});
 
 function bindUpload() {
   const uploadZone = $("#uploadZone");
