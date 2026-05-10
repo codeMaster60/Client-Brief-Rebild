@@ -180,10 +180,6 @@ function animateStep() {
 
 function renderStep() {
 
-   window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
 
   renderShell();
   
@@ -565,11 +561,19 @@ function goNext() {
     return;
   }
   state.step = Math.min(state.step + 1, STEPS.length - 1);
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
   renderStep();
 }
 
 function goBack() {
   state.step = Math.max(state.step - 1, 0);
+   window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
   renderStep();
 }
 
