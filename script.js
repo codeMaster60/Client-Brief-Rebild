@@ -34,6 +34,7 @@ const GOAL_OPTIONS = [
   "App installs",
   "Engagement / community",
   "Footfall to physical store",
+  "Others"
 ];
 const BUDGETS = [
   "Under INR 25,000 / month",
@@ -175,7 +176,15 @@ function animateStep() {
   el.style.animation = "";
 }
 
+
+
 function renderStep() {
+
+   window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
+
   renderShell();
   
 
@@ -252,11 +261,19 @@ function renderStep() {
         <div class="field">
           <label>Primary goals <b>*</b></label>
           <small>Select all that apply.</small>
-          <div class="pill-group">
-            ${GOAL_OPTIONS.map((goal) => pill(goal, state.data.primary_goals.includes(goal), "toggle-goal")).join("")}
-          </div>
+         <div class="pill-group">
+  ${GOAL_OPTIONS.map((goal) => pill(goal, state.data.primary_goals.includes(goal), "toggle-goal")).join("")}
+</div>
+
+${state.data.primary_goals.includes("Others") ? `
+  <div style="margin-top:16px;">
+    ${field("other_goal", "Tell us your goal", {
+      placeholder: "Describe your custom goal..."
+    })}
+  </div>
+` : ""}
         </div>
-        <div class="field">
+          <div class="field">
           <label>Monthly marketing budget <b>*</b></label>
           <small>Approximate monthly spend you're comfortable with.</small>
           <div class="pill-group">
@@ -276,6 +293,13 @@ function renderStep() {
           hint: "The KPIs that matter to you - ROAS, CPL, followers, sales, etc.",
           placeholder: "e.g. CPL under INR 150, 3x ROAS in 90 days, 10K qualified leads...",
         })}
+
+       ${field("creative_requirements", "Creative Requirements", { 
+  textarea: true,
+  required: true,
+  hint: "This is your single source of truth. We plan everything based on what you write here — so be as detailed as possible. If it was discussed on the call, it must be mentioned here.",
+  placeholder: "Please describe everything in detail — faces or no faces, months, seasons, festivals, languages, regions, product focus, tone, mood, formats, colours, references, things to avoid, and anything else we discussed on the call. Whatever you mention here is what we will plan and execute. Nothing should be left out — these details will be treated as final. If it was discussed, it goes here.",
+})}
         ${hasMeta ? renderMetaBox() : ""}
       </div>
     `;
@@ -614,7 +638,9 @@ async function saveSubmission() {
   competitors: state.data.competitors,
   success_metrics: state.data.success_metrics,
 
-  notes: state.data.additional_notes
+  notes: state.data.additional_notes,
+  other_goal: state.data.other_goal,
+creative_requirements: state.data.creative_requirements,
 };
 
   try {

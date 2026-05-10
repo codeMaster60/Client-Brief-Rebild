@@ -87,7 +87,7 @@ button:disabled {
 }
 
 .brand-logo {
-  height: 120px;
+  height: 200px;
   max-width: none;
   
 }
@@ -711,6 +711,9 @@ button:disabled {
 
 .summary-grid dd {
   margin: 2px 0 0;
+}
+.creative-req-field textarea::placeholder {
+  font-size: 12px;
 }
 
 .form-actions {
